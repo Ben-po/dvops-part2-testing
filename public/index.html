@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkillLink</title>
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Minimal modal styles for login/register */
+    .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:50; }
+    .modal { background:white; padding:18px; border-radius:8px; width:320px; box-shadow:0 6px 24px rgba(0,0,0,0.2); }
+    .modal h3 { margin-top:0; }
+    .modal label { display:block; font-size:13px; margin-top:8px; }
+    .modal input { width:100%; padding:8px; margin-top:4px; box-sizing:border-box; }
+    .modal .actions { margin-top:12px; display:flex; gap:8px; justify-content:flex-end; }
+    .btn { padding:8px 12px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:#f4f4f4; }
+  </style>
 </head>
 <body>
   <header>
     <h1>SkillLink</h1>
     <nav>
-      <button id="loginBtn">Login</button>
-      <button id="registerBtn">Register</button>
+      <a href="/login.html" id="loginBtn" class="button">Login</a>
+      <a href="/register.html" id="registerBtn" class="button">Register</a>
       <button id="logoutBtn" style="display: none;">Logout</button>
     </nav>
   </header>
@@ -50,6 +60,31 @@
     <p>© 2025 SkillLink | A Peer Skill-Sharing Platform</p>
   </footer>
 
-  <script src="js/yourname.js"></script>
+  <script src="js/Benjamin.js"></script>
+  <!-- Login Modal -->
+  <div id="loginModalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <h3 id="loginTitle">Login</h3>
+      <label>Username<input id="login_username" type="text" autocomplete="username"></label>
+      <label>Password<input id="login_password" type="password" autocomplete="current-password"></label>
+      <div class="actions">
+        <button id="loginCancel" class="btn">Cancel</button>
+        <button id="loginSubmit" class="btn">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div id="registerModalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+      <h3 id="registerTitle">Register</h3>
+      <label>Username<input id="register_username" type="text" autocomplete="username"></label>
+      <label>Password<input id="register_password" type="password" autocomplete="new-password"></label>
+      <div class="actions">
+        <button id="registerCancel" class="btn">Cancel</button>
+        <button id="registerSubmit" class="btn">Register</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
