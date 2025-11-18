@@ -94,8 +94,7 @@
         <div class="column">
           <h3>Skill Offers</h3>
           <ul id="offersList">
-            <li><strong>John:</strong> I can teach Python</li>
-            <li><strong>Mary:</strong> I can teach Guitar</li>
+            <!-- JS will fill this from offers.json -->
           </ul>
           <button class="add-btn" id="addOfferBtn">+ Add Offer</button>
         </div>
@@ -103,8 +102,7 @@
         <div class="column">
           <h3>Skill Requests</h3>
           <ul id="requestsList">
-            <li><strong>Alex:</strong> I want to learn Piano</li>
-            <li><strong>Lisa:</strong> I want to learn Cooking</li>
+            <!-- JS will fill this from requests.json -->
           </ul>
           <button class="add-btn" id="addRequestBtn">+ Add Request</button>
         </div>
@@ -153,70 +151,7 @@
     </div>
   </div>
 
-  <!-- ------------------- JAVASCRIPT ------------------- -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-      const offerModal = document.getElementById("offerModal");
-      const requestModal = document.getElementById("requestModal");
-
-      const addOfferBtn = document.getElementById("addOfferBtn");
-      const addRequestBtn = document.getElementById("addRequestBtn");
-
-      const closeOffer = document.getElementById("closeOffer");
-      const closeRequest = document.getElementById("closeRequest");
-
-      const offerForm = document.getElementById("offerForm");
-      const requestForm = document.getElementById("requestForm");
-
-      const offersList = document.getElementById("offersList");
-      const requestsList = document.getElementById("requestsList");
-
-      // Open modals
-      addOfferBtn.onclick = () => offerModal.style.display = "block";
-      addRequestBtn.onclick = () => requestModal.style.display = "block";
-
-      // Close modals
-      closeOffer.onclick = () => offerModal.style.display = "none";
-      closeRequest.onclick = () => requestModal.style.display = "none";
-
-      // Click outside = close
-      window.onclick = function(e) {
-        if (e.target === offerModal) offerModal.style.display = "none";
-        if (e.target === requestModal) requestModal.style.display = "none";
-      };
-
-      // Submit Offer
-      offerForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        const name = offerName.value;
-        const skill = offerSkill.value;
-
-        const li = document.createElement("li");
-        li.innerHTML = `<strong>${name}:</strong> I can teach ${skill}`;
-        offersList.appendChild(li);
-
-        offerModal.style.display = "none";
-        offerForm.reset();
-      });
-
-      // Submit Request
-      requestForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        const name = requestName.value;
-        const skill = requestSkill.value;
-
-        const li = document.createElement("li");
-        li.innerHTML = `<strong>${name}:</strong> I want to learn ${skill}`;
-        requestsList.appendChild(li);
-
-        requestModal.style.display = "none";
-        requestForm.reset();
-      });
-    });
-  </script>
-
+  <!-- Only ONE script tag, at the bottom -->
+  <script src="js/Cheng.js"></script>
 </body>
 </html>

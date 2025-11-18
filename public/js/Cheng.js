@@ -1,99 +1,124 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-  // --- Modal Elements ---
   const offerModal = document.getElementById("offerModal");
   const requestModal = document.getElementById("requestModal");
 
-  // --- Buttons to open modals ---
   const addOfferBtn = document.getElementById("addOfferBtn");
   const addRequestBtn = document.getElementById("addRequestBtn");
 
-  // --- Close buttons ---
   const closeOffer = document.getElementById("closeOffer");
   const closeRequest = document.getElementById("closeRequest");
 
-  // --- Forms ---
   const offerForm = document.getElementById("offerForm");
   const requestForm = document.getElementById("requestForm");
 
-  // --- Lists to update ---
   const offersList = document.getElementById("offersList");
   const requestsList = document.getElementById("requestsList");
 
-  // -----------------------------
-  // OPEN POPUP MODALS
-  // -----------------------------
-  addOfferBtn.onclick = () => {
-    offerModal.style.display = "block";
-  };
+  // Helper: render list items
+  function addOfferToDOM(name, skill) {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${name}:</strong> I can teach ${skill}`;
+    offersList.appendChild(li);
+  }
 
-  addRequestBtn.onclick = () => {
-    requestModal.style.display = "block";
-  };
+  function addRequestToDOM(name, skill) {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${name}:</strong> I want to learn ${skill}`;
+    requestsList.appendChild(li);
+  }
 
-  // -----------------------------
-  // CLOSE POPUPS (X BUTTON)
-  // -----------------------------
-  closeOffer.onclick = () => {
-    offerModal.style.display = "none";
-  };
+  // Load from backend (JSON files via Node)
+  async function loadData() {
+    try {
+      const [offersRes, requestsRes] = await Promise.all([
+        fetch("/api/offers"),
+        fetch("/api/requests"),
+      ]);
 
-  closeRequest.onclick = () => {
-    requestModal.style.display = "none";
-  };
+      const offers = await offersRes.json();
+      const requests = await requestsRes.json();
 
-  // -----------------------------
-  // CLOSE POPUPS ON OUTSIDE CLICK
-  // -----------------------------
-  window.onclick = function (event) {
-    if (event.target === offerModal) {
-      offerModal.style.display = "none";
+      offersList.innerHTML = "";
+      requestsList.innerHTML = "";
+
+      offers.forEach(o => addOfferToDOM(o.name, o.skill));
+      requests.forEach(r => addRequestToDOM(r.name, r.skill));
+    } catch (err) {
+      console.error("Error loading data from server:", err);
     }
-    if (event.target === requestModal) {
-      requestModal.style.display = "none";
-    }
+  }
+
+  loadData();
+
+  // Open modals
+  addOfferBtn.onclick = () => offerModal.style.display = "block";
+  addRequestBtn.onclick = () => requestModal.style.display = "block";
+
+  // Close modals
+  closeOffer.onclick = () => offerModal.style.display = "none";
+  closeRequest.onclick = () => requestModal.style.display = "none";
+
+  // Click outside = close
+  window.onclick = function(e) {
+    if (e.target === offerModal) offerModal.style.display = "none";
+    if (e.target === requestModal) requestModal.style.display = "none";
   };
 
-  // -----------------------------
-  // SUBMIT OFFER FORM
-  // -----------------------------
-  offerForm.addEventListener("submit", function (e) {
+  // Submit Offer (save to backend)
+  offerForm.addEventListener("submit", async function(e) {
     e.preventDefault();
 
     const name = document.getElementById("offerName").value.trim();
     const skill = document.getElementById("offerSkill").value.trim();
+    if (!name || !skill) return;
 
-    if (name === "" || skill === "") return;
+    try {
+      const res = await fetch("/api/offers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, skill }),
+      });
 
-    // Add new item to Skill Offers list
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${name}:</strong> I can teach ${skill}`;
-    offersList.appendChild(li);
+      if (!res.ok) {
+        console.error("Failed to save offer");
+        return;
+      }
 
-    // Close modal + reset form
-    offerForm.reset();
-    offerModal.style.display = "none";
+      addOfferToDOM(name, skill);
+      offerModal.style.display = "none";
+      offerForm.reset();
+    } catch (err) {
+      console.error("Error submitting offer:", err);
+    }
   });
 
-  // -----------------------------
-  // SUBMIT REQUEST FORM
-  // -----------------------------
-  requestForm.addEventListener("submit", function (e) {
+  // Submit Request (save to backend)
+  requestForm.addEventListener("submit", async function(e) {
     e.preventDefault();
 
     const name = document.getElementById("requestName").value.trim();
     const skill = document.getElementById("requestSkill").value.trim();
+    if (!name || !skill) return;
 
-    if (name === "" || skill === "") return;
+    try {
+      const res = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, skill }),
+      });
 
-    // Add new item to Skill Requests list
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${name}:</strong> I want to learn ${skill}`;
-    requestsList.appendChild(li);
+      if (!res.ok) {
+        console.error("Failed to save request");
+        return;
+      }
 
-    // Close modal + reset form
-    requestForm.reset();
-    requestModal.style.display = "none";
+      addRequestToDOM(name, skill);
+      requestModal.style.display = "none";
+      requestForm.reset();
+    } catch (err) {
+      console.error("Error submitting request:", err);
+    }
   });
 
 });
