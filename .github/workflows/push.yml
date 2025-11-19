@@ -1,23 +1,33 @@
 name: Push Workflow (Static Website)
 
+#Trigger this workflow whenever someone pushes to the main branch
 on:
   push:
     branches: ["main"]
 
 jobs:
   validate-static-site:
+    #Use GitHub's Ubuntu virtual machine
     runs-on: ubuntu-latest
 
     steps:
+      #Download the repository code into the runner
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      #Display project structure (helps ensure all files exist)
       - name: List project files
         run: ls -R
 
-      - name: Validate HTML files
-        uses: Cyb3r-Jak3/html5validator-action@v1.0.0
+      #Install HTMLHint globally (HTML linter for static websites)
+      - name: Install HTMLHint
+        run: npm install -g htmlhint
 
+      # Validate all HTML files using HTMLHint
+      - name: Validate HTML using HTMLHint
+        run: htmlhint "**/*.html"
+
+      #Check for large files that shouldn't be in the repository
       - name: Check for large files
         run: |
           echo "Scanning for files larger than 5MB..."
