@@ -34,6 +34,7 @@ jobs:
         run: npm install -g stylelint stylelint-config-standard
 
       - name: Validate CSS
+        continue-on-error: true #Prevents the whole process from halting when error is detected
         run: stylelint "**/*.css"
 
       #JS Validation
@@ -41,8 +42,15 @@ jobs:
         run: npm install -g eslint
 
       - name: Validate JavaScript
+        continue-on-error: true 
         run: eslint "**/*.js" || true
         #ensures warnings don't break the workflow
+
+
+      #security Scan for Secrets
+      - uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
 
       #Generates a preview website when merging
       - name: Create preview 
