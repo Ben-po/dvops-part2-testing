@@ -32,40 +32,4 @@ jobs:
           find . -type f -size +5M || true
 
 
-#sync the main branch
-  sync-branches:
-    needs: validate-static-site
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout full repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Fetch all branches
-        run: git fetch --all
-
-
-#branch list
-      - name: Define branches to sync
-        id: vars
-        run: |
-          echo "branches=Login/Register-user manage-posts post-skill/offer" >> $GITHUB_ENV
-
-
-# merge each branch manually
-      - name: Merge main into each branch
-        run: |
-          for branch in $branches; do
-            echo "🔄 Updating $branch"
-
-            # Check out the branch safely
-            git checkout -B "$branch" "origin/$branch" || continue
-
-            # Merge main
-            git merge origin/main --no-edit || true
-
-            # Push updates
-            git push origin "$branch" || true
-          done
