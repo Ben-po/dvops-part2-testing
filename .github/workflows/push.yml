@@ -9,27 +9,50 @@ permissions:
 
 jobs:
 
-#Validate incoming HTML
-  validate-static-site:
+  # Validate HTML, CSS, JS + Security + Preview
+  validate-site:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # List project files (debugging)
       - name: List project files
         run: ls -R
 
+      #HTML Validation
       - name: Install HTMLHint
         run: npm install -g htmlhint
 
       - name: Validate HTML
         run: htmlhint "**/*.html"
 
-      - name: Check large files
-        run: |
-          echo "Scanning for files larger than 5MB..."
-          find . -type f -size +5M || true
+      #CSS Validation
+      - name: Install Stylelint
+        run: npm install -g stylelint stylelint-config-standard
 
+      - name: Validate CSS
+        run: stylelint "**/*.css"
 
+      #JS Validation
+      - name: Install ESLint
+        run: npm install -g eslint
 
+      - name: Validate JavaScript
+        run: eslint "**/*.js" || true
+        # "|| true" ensures warnings don't break the workflow
+
+      #Check for any possible security vulnerability
+      - name: Security Scan for Secrets
+        uses: trufflesecurity/trufflehog@v3
+        with:
+          path: .
+
+      #Generates a preview website when merging
+      - name: Create preview 
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-preview
+          path: .
