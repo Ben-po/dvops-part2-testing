@@ -1,10 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-/**
- * Load local API keys from utils/api_keys.json if present.
- * This file is optional and should NOT be committed with real secrets.
- */
+//Load local API keys from api_keys.json file
 function loadLocalKeys() {
   try {
     const p = path.join(__dirname, 'api_keys.json');
@@ -13,21 +10,13 @@ function loadLocalKeys() {
     if (!raw) return {};
     return JSON.parse(raw);
   } catch (err) {
-    // Don't throw — return empty object so callers fallback to env only
+    // Don't throw return empty object so callers fallback to env only
     return {};
   }
 }
 
-/**
- * Get an API key by name.
- * Lookup order:
- *  1. process.env[name]
- *  2. process.env[name.toUpperCase()]
- *  3. process.env["API_" + name.toUpperCase()]
- *  4. utils/api_keys.json (if present)
- *
- * Returns the key string or null if not found.
- */
+
+//Get API key by name from environment variables or local file
 function getApiKey(name, options = { fallbackToFile: true }) {
   if (!name) return null;
   const keyName = String(name);

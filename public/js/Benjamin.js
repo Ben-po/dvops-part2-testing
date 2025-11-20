@@ -1,9 +1,8 @@
 // Frontend logic for simple register/login UI
-// This is lightweight demo code that calls the backend endpoints at /api/register and /api/login
 
 const $ = (sel) => document.querySelector(sel);
 
-function showLoggedIn(user) {
+function showLoggedIn(user) { // Show logout button with username
   $('#loginBtn').style.display = 'none';
   $('#registerBtn').style.display = 'none';
   const logout = $('#logoutBtn');
@@ -11,17 +10,17 @@ function showLoggedIn(user) {
   logout.textContent = `Logout (${user.username})`;
 }
 
-function showLoggedOut() {
+function showLoggedOut() { // Show login/register buttons
   $('#loginBtn').style.display = 'inline-block';
   $('#registerBtn').style.display = 'inline-block';
   $('#logoutBtn').style.display = 'none';
 }
 
-function saveToken(token) { localStorage.setItem('sl_token', token); }
-function getToken() { return localStorage.getItem('sl_token'); }
-function clearToken() { localStorage.removeItem('sl_token'); }
+function saveToken(token) { localStorage.setItem('sl_token', token); } // Simple Login token
+function getToken() { return localStorage.getItem('sl_token'); } // Simple Login token
+function clearToken() { localStorage.removeItem('sl_token'); } // Simple Login token
 
-async function fetchMe() {
+async function fetchMe() { // Fetch current user using saved token
   const token = getToken();
   if (!token) return null;
   try {
@@ -32,10 +31,10 @@ async function fetchMe() {
   } catch (e) { return null; }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () => { // Setup event listeners for login, register, logout
   const loginForm = $('#loginForm');
   if (loginForm) {
-    loginForm.addEventListener('submit', async (event) => {
+    loginForm.addEventListener('submit', async (event) => { // Handle login form submission
       event.preventDefault();
       const username = $('#login_username').value;
       const password = $('#login_password').value;
@@ -57,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const registerForm = $('#registerForm');
   if (registerForm) {
-    registerForm.addEventListener('submit', async (event) => {
+    registerForm.addEventListener('submit', async (event) => { // Handle register form submission
       event.preventDefault();
       const username = $('#register_username').value;
       const password = $('#register_password').value;
@@ -77,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  const logoutBtn = $('#logoutBtn');
+  const logoutBtn = $('#logoutBtn'); // Handle logout button click
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       clearToken();
@@ -99,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-function populateSkills() {
+function populateSkills() { // Populate skill cards dynamically
   const skills = [
     "Python", "JavaScript", "Java", "C++", "C#", "Ruby", "Go", "Swift", "Kotlin",
     "HTML", "CSS", "React", "Angular", "Vue.js", "Node.js", "Django", "Flask",
@@ -126,7 +125,7 @@ function populateSkills() {
   }
 }
 
-function setupSkillSelection() {
+function setupSkillSelection() { // Setup skill card selection logic
   const container = $('#skill-card-container');
   const submitBtn = $('#submitSkillsBtn');
   let selectedSkills = [];
