@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const offersList = document.getElementById("offersList");
   const requestsList = document.getElementById("requestsList");
 
-  // Helper: render list items
   function addOfferToDOM(name, skill) {
     const li = document.createElement("li");
     li.innerHTML = `<strong>${name}:</strong> I can teach ${skill}`;
@@ -28,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
     requestsList.appendChild(li);
   }
 
-  // Load from backend (JSON files via Node)
   async function loadData() {
     try {
       const [offersRes, requestsRes] = await Promise.all([
@@ -51,21 +49,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loadData();
 
-  // Open modals
   addOfferBtn.onclick = () => offerModal.style.display = "block";
   addRequestBtn.onclick = () => requestModal.style.display = "block";
 
-  // Close modals
   closeOffer.onclick = () => offerModal.style.display = "none";
   closeRequest.onclick = () => requestModal.style.display = "none";
 
-  // Click outside = close
   window.onclick = function(e) {
     if (e.target === offerModal) offerModal.style.display = "none";
     if (e.target === requestModal) requestModal.style.display = "none";
   };
 
-  // Submit Offer (save to backend)
   offerForm.addEventListener("submit", async function(e) {
     e.preventDefault();
 
@@ -93,7 +87,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Submit Request (save to backend)
   requestForm.addEventListener("submit", async function(e) {
     e.preventDefault();
 
