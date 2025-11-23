@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const SkillPostUtil = require('./utils/SkillPostUtil');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -102,6 +103,16 @@ app.get('/api/me', (req, res) => {
 
     return res.json({ success: true, user: { id: user.id, username: user.username } });
 });
+
+// View all posts
+app.get('/api/posts', SkillPostUtil.viewPosts);
+
+// Update a post
+app.put('/api/posts/:id', SkillPostUtil.updatePost);
+
+// Delete a post
+app.delete('/api/posts/:id', SkillPostUtil.deletePost);
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
