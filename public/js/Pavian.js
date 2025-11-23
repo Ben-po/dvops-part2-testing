@@ -11,7 +11,6 @@ function getCurrentUser() {
 
 // Init
 window.addEventListener("DOMContentLoaded", () => {
-  loadPosts();
   setupEditModal();
 });
 
@@ -40,86 +39,7 @@ function setupEditModal() {
 }
 
 // Load posts
-function loadPosts() {
-  fetch("/api/posts")
-    .then((res) => res.json())
-    .then((data) => {
-      if (!data.success) {
-        alert(data.message || "Failed to load posts.");
-        return;
-      }
-
-      const offersList = document.getElementById("offersList");
-      const requestsList = document.getElementById("requestsList");
-      const currentUser = getCurrentUser();
-
-      if (!offersList || !requestsList) {
-        console.error("Missing offersList or requestsList element");
-        return;
-      }
-
-      offersList.innerHTML = "";
-      requestsList.innerHTML = "";
-
-      // Render offers
-      (data.offers || []).forEach((post) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>${post.username}:</strong> ${post.description}
-          <br><small>${post.skill} • ${post.category}</small>
-        `;
-
-        if (currentUser && post.username && post.username.toLowerCase() === currentUser.toLowerCase()) {
-          const editBtn = document.createElement("button");
-          editBtn.textContent = "Edit";
-          editBtn.className = "action-btn edit-btn";
-          editBtn.addEventListener("click", () => handleEdit(post));
-
-          const delBtn = document.createElement("button");
-          delBtn.textContent = "Delete";
-          delBtn.className = "action-btn delete-btn";
-          delBtn.addEventListener("click", () => handleDelete(post));
-
-          li.appendChild(document.createElement("br"));
-          li.appendChild(editBtn);
-          li.appendChild(delBtn);
-        }
-
-        offersList.appendChild(li);
-      });
-
-      // Render requests
-      (data.requests || []).forEach((post) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>${post.username}:</strong> ${post.description}
-          <br><small>${post.skill} • ${post.category}</small>
-        `;
-
-        if (currentUser && post.username && post.username.toLowerCase() === currentUser.toLowerCase()) {
-          const editBtn = document.createElement("button");
-          editBtn.textContent = "Edit";
-          editBtn.className = "action-btn edit-btn";
-          editBtn.addEventListener("click", () => handleEdit(post));
-
-          const delBtn = document.createElement("button");
-          delBtn.textContent = "Delete";
-          delBtn.className = "action-btn delete-btn";
-          delBtn.addEventListener("click", () => handleDelete(post));
-
-          li.appendChild(document.createElement("br"));
-          li.appendChild(editBtn);
-          li.appendChild(delBtn);
-        }
-
-        requestsList.appendChild(li);
-      });
-    })
-    .catch((err) => {
-      console.error(err);
-      alert("Error loading posts.");
-    });
-}
+// Note: rendering is done in `Cheng.js`. This file handles edit/delete only.
 
 // Open edit modal
 function handleEdit(post) {
@@ -133,18 +53,14 @@ function handleEdit(post) {
 
   const modal = document.getElementById("editModal");
   const skillInput = document.getElementById("editSkillInput");
-  const categoryInput = document.getElementById("editCategoryInput");
-  const descriptionInput = document.getElementById("editDescriptionInput");
 
-  if (!modal || !skillInput || !categoryInput || !descriptionInput) {
+  if (!modal || !skillInput) {
     console.error("Edit modal elements not found");
     return;
   }
 
-  // Prefill with existing values
+  // Prefill skill only
   skillInput.value = post.skill || "";
-  categoryInput.value = post.category || "";
-  descriptionInput.value = post.description || "";
 
   modal.style.display = "flex"; // show modal
 }
@@ -163,22 +79,18 @@ function handleEditSave() {
 
   const modal = document.getElementById("editModal");
   const skillInput = document.getElementById("editSkillInput");
-  const categoryInput = document.getElementById("editCategoryInput");
-  const descriptionInput = document.getElementById("editDescriptionInput");
 
   const skill = skillInput.value.trim();
-  const category = categoryInput.value.trim();
-  const description = descriptionInput.value.trim();
 
-  if (!skill || !category || !description) {
-    alert("All fields are required.");
+  if (!skill) {
+    alert("Skill is required.");
     return;
   }
 
   fetch(`/api/posts/${currentEditingPost.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ skill, category, description, username: currentUser }),
+    body: JSON.stringify({ skill, username: currentUser }),
   })
     .then((res) => res.json())
     .then((data) => {
@@ -186,7 +98,7 @@ function handleEditSave() {
       if (data.success) {
         modal.style.display = "none";
         currentEditingPost = null;
-        loadPosts(); // refresh list
+        if (window.reloadPosts) window.reloadPosts();
       }
     })
     .catch((err) => {
@@ -216,7 +128,7 @@ function handleDelete(post) {
     .then((data) => {
       alert(data.message);
       if (data.success) {
-        loadPosts();
+        if (window.reloadPosts) window.reloadPosts();
       }
     })
     .catch((err) => {

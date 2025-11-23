@@ -61,13 +61,13 @@ document.addEventListener("DOMContentLoaded", function () {
           editBtn.textContent = 'Edit';
           editBtn.className = 'action-btn edit-btn';
           editBtn.dataset.id = o.id;
-          editBtn.addEventListener('click', () => openEditModal(o));
+          editBtn.addEventListener('click', () => handleEdit(o));
 
           const delBtn = document.createElement('button');
           delBtn.textContent = 'Delete';
           delBtn.className = 'action-btn delete-btn';
           delBtn.dataset.id = o.id;
-          delBtn.addEventListener('click', () => doDelete(o.id));
+          delBtn.addEventListener('click', () => handleDelete(o));
 
           li.appendChild(br);
           li.appendChild(editBtn);
@@ -89,13 +89,13 @@ document.addEventListener("DOMContentLoaded", function () {
           editBtn.textContent = 'Edit';
           editBtn.className = 'action-btn edit-btn';
           editBtn.dataset.id = r.id;
-          editBtn.addEventListener('click', () => openEditModal(r));
+          editBtn.addEventListener('click', () => handleEdit(r));
 
           const delBtn = document.createElement('button');
           delBtn.textContent = 'Delete';
           delBtn.className = 'action-btn delete-btn';
           delBtn.dataset.id = r.id;
-          delBtn.addEventListener('click', () => doDelete(r.id));
+          delBtn.addEventListener('click', () => handleDelete(r));
 
           li.appendChild(br);
           li.appendChild(editBtn);
@@ -107,6 +107,8 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Error loading data from server:", err);
     }
   }
+  // expose reload function so other modules (Pavian.js) can request a refresh
+  window.reloadPosts = loadData;
 
   loadData();
 
@@ -180,59 +182,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Edit modal wiring
-  const editModal = document.getElementById('editModal');
-  const skillInput = document.getElementById('editSkillInput');
-  const saveBtn = document.getElementById('editSaveBtn');
-  const cancelBtn = document.getElementById('editCancelBtn');
-
-  function openEditModal(post) {
-    currentEditing = post;
-    skillInput.value = post.skill || '';
-    editModal.style.display = 'flex';
-  }
-
-  cancelBtn.addEventListener('click', () => { editModal.style.display = 'none'; currentEditing = null; });
-  editModal.addEventListener('click', (e) => { if (e.target === editModal) { editModal.style.display = 'none'; currentEditing = null; } });
-
-  saveBtn.addEventListener('click', async () => {
-    if (!currentEditing) return;
-    const username = getCurrentUser();
-    const skill = skillInput.value.trim();
-    if (!skill) { alert('Skill is required'); return; }
-
-    try {
-      const res = await fetch(`/api/posts/${currentEditing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skill, username })
-      });
-      const payload = await res.json();
-      alert(payload.message || 'Updated');
-      if (payload.success) {
-        editModal.style.display = 'none';
-        currentEditing = null;
-        await loadData();
-      }
-    } catch (err) {
-      console.error('Error saving edit', err);
-      alert('Update failed');
-    }
-  });
-
-  async function doDelete(id) {
-    const username = getCurrentUser();
-    if (!confirm('Delete this post?')) return;
-    try {
-      const res = await fetch(`/api/posts/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      });
-      const payload = await res.json();
-      alert(payload.message || 'Deleted');
-      if (payload.success) await loadData();
-    } catch (err) { console.error('Delete failed', err); alert('Delete failed'); }
-  }
-
+  // Edit/Delete handled by `Pavian.js` (this file only renders posts)
 });
