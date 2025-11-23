@@ -3,15 +3,11 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const SkillPostUtil = require('./utils/SkillPostUtil');
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
-const bcrypt = require("bcryptjs");
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());  // <-- FIXED: moved to top
+app.use(express.json());  // Fixed: moved to top
 app.use(express.static(path.join(__dirname, "public"))); // serve frontend
 
 const USERS_FILE = path.join(__dirname, "utils", "skilllink.json");
@@ -213,9 +209,6 @@ app.put('/api/posts/:id', SkillPostUtil.updatePost);
 // Delete a post
 app.delete('/api/posts/:id', SkillPostUtil.deletePost);
 
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
 app.listen(PORT, () => {
     console.log(`Merged SkillLink server running at http://localhost:${PORT}`);
 });
