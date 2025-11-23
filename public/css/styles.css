@@ -140,3 +140,84 @@ footer {
   color: #555;
   border-top: 1px solid #e2e2e2;
 }
+
+/* Common style for action buttons (Edit/Delete) */
+.action-btn {
+  border: none;
+  padding: 6px 14px;
+  margin-top: 6px;
+  margin-right: 6px;
+  border-radius: 999px;      /* round pill shape */
+  color: #ffffff;            /* white text */
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+/* Edit = blue */
+.edit-btn {
+  background-color: #0078d4;
+}
+
+/* Delete = red */
+.delete-btn {
+  background-color: #d9534f;
+}
+
+/* Small hover effect */
+.action-btn:hover {
+  opacity: 0.85;
+}
+
+/* ===== Edit Modal ===== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;          /* hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #0078d4;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
