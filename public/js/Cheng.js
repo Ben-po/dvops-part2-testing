@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // current editing post for modal
+  let currentEditing = null;
+
+  function getCurrentUser() {
+    return localStorage.getItem('loggedInUser');
+  }
 
   const offerModal = document.getElementById("offerModal");
   const requestModal = document.getElementById("requestModal");
@@ -40,8 +46,63 @@ document.addEventListener("DOMContentLoaded", function () {
       offersList.innerHTML = "";
       requestsList.innerHTML = "";
 
-      offers.forEach(o => addOfferToDOM(o.name, o.skill));
-      requests.forEach(r => addRequestToDOM(r.name, r.skill));
+      const currentUser = getCurrentUser();
+
+      // render offers with buttons
+      offers.forEach(o => {
+        const li = document.createElement('li');
+        const username = o.username || o.name || '';
+        // show 'I can teach' before the skill
+        li.innerHTML = `<strong>${username}:</strong> I can teach ${o.skill}${o.category ? ' • ' + o.category : ''}` +
+                 `<br><small>${o.description || ''}</small>`;
+        if (currentUser && username === currentUser) {
+          const br = document.createElement('br');
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Edit';
+          editBtn.className = 'action-btn edit-btn';
+          editBtn.dataset.id = o.id;
+          editBtn.addEventListener('click', () => openEditModal(o));
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'Delete';
+          delBtn.className = 'action-btn delete-btn';
+          delBtn.dataset.id = o.id;
+          delBtn.addEventListener('click', () => doDelete(o.id));
+
+          li.appendChild(br);
+          li.appendChild(editBtn);
+          li.appendChild(delBtn);
+        }
+        offersList.appendChild(li);
+      });
+
+      // render requests with buttons
+      requests.forEach(r => {
+        const li = document.createElement('li');
+        const username = r.username || r.name || '';
+        // show 'I want to learn' before the skill
+        li.innerHTML = `<strong>${username}:</strong> I want to learn ${r.skill}${r.category ? ' • ' + r.category : ''}` +
+                 `<br><small>${r.description || ''}</small>`;
+        if (currentUser && username === currentUser) {
+          const br = document.createElement('br');
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Edit';
+          editBtn.className = 'action-btn edit-btn';
+          editBtn.dataset.id = r.id;
+          editBtn.addEventListener('click', () => openEditModal(r));
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'Delete';
+          delBtn.className = 'action-btn delete-btn';
+          delBtn.dataset.id = r.id;
+          delBtn.addEventListener('click', () => doDelete(r.id));
+
+          li.appendChild(br);
+          li.appendChild(editBtn);
+          li.appendChild(delBtn);
+        }
+        requestsList.appendChild(li);
+      });
     } catch (err) {
       console.error("Error loading data from server:", err);
     }
@@ -79,7 +140,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      addOfferToDOM(name, skill);
+      const payload = await res.json();
+      const post = payload.post || { id: null, username: name, skill };
+      // reload lists to get normalized data
+      await loadData();
       offerModal.style.display = "none";
       offerForm.reset();
     } catch (err) {
@@ -106,12 +170,69 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      addRequestToDOM(name, skill);
+      const payload = await res.json();
+      const post = payload.post || { id: null, username: name, skill };
+      await loadData();
       requestModal.style.display = "none";
       requestForm.reset();
     } catch (err) {
       console.error("Error submitting request:", err);
     }
   });
+
+  // Edit modal wiring
+  const editModal = document.getElementById('editModal');
+  const skillInput = document.getElementById('editSkillInput');
+  const saveBtn = document.getElementById('editSaveBtn');
+  const cancelBtn = document.getElementById('editCancelBtn');
+
+  function openEditModal(post) {
+    currentEditing = post;
+    skillInput.value = post.skill || '';
+    editModal.style.display = 'flex';
+  }
+
+  cancelBtn.addEventListener('click', () => { editModal.style.display = 'none'; currentEditing = null; });
+  editModal.addEventListener('click', (e) => { if (e.target === editModal) { editModal.style.display = 'none'; currentEditing = null; } });
+
+  saveBtn.addEventListener('click', async () => {
+    if (!currentEditing) return;
+    const username = getCurrentUser();
+    const skill = skillInput.value.trim();
+    if (!skill) { alert('Skill is required'); return; }
+
+    try {
+      const res = await fetch(`/api/posts/${currentEditing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skill, username })
+      });
+      const payload = await res.json();
+      alert(payload.message || 'Updated');
+      if (payload.success) {
+        editModal.style.display = 'none';
+        currentEditing = null;
+        await loadData();
+      }
+    } catch (err) {
+      console.error('Error saving edit', err);
+      alert('Update failed');
+    }
+  });
+
+  async function doDelete(id) {
+    const username = getCurrentUser();
+    if (!confirm('Delete this post?')) return;
+    try {
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      const payload = await res.json();
+      alert(payload.message || 'Deleted');
+      if (payload.success) await loadData();
+    } catch (err) { console.error('Delete failed', err); alert('Delete failed'); }
+  }
 
 });

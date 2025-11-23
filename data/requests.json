@@ -1,18 +1,23 @@
 [
   {
-    "name": "Alex",
-    "skill": "Piano"
+    "id": 6,
+    "username": "Alex",
+    "skill": "Piano",
+    "category": "",
+    "description": ""
   },
   {
-    "name": "Lisa",
-    "skill": "Cooking"
+    "id": 7,
+    "username": "Lisa",
+    "skill": "Cooking",
+    "category": "",
+    "description": ""
   },
   {
-    "name": "Fanta",
-    "skill": "python"
-  },
-  {
-    "name": "fanta",
-    "skill": "python"
+    "id": 8,
+    "username": "Fanta",
+    "skill": "python",
+    "category": "",
+    "description": ""
   }
 ]

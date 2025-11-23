@@ -134,6 +134,7 @@ const dataDir = path.join(__dirname, "data");
 const offersFile = path.join(dataDir, "offers.json");
 const requestsFile = path.join(dataDir, "requests.json");
 
+
 function ensureFile(filePath, defaultData) {
     if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir);
@@ -165,9 +166,58 @@ function saveJson(file, data) {
     fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf-8");
 }
 
+// Compute next id from both files
+function getNextId() {
+    const offers = loadJson(offersFile) || [];
+    const requests = loadJson(requestsFile) || [];
+    const all = offers.concat(requests);
+    const maxId = all.reduce((m, p) => Math.max(m, p.id || 0), 0);
+    return maxId + 1;
+}
+
+// Normalize data files: ensure id and username fields exist; write back if changed
+function normalizeDataFiles() {
+    const offersRaw = loadJson(offersFile);
+    const requestsRaw = loadJson(requestsFile);
+
+    const offers = offersRaw.map(o => ({
+        id: o.id || null,
+        username: o.username || o.name || "",
+        skill: o.skill || "",
+        category: o.category || "",
+        description: o.description || ""
+    }));
+
+    const requests = requestsRaw.map(r => ({
+        id: r.id || null,
+        username: r.username || r.name || "",
+        skill: r.skill || "",
+        category: r.category || "",
+        description: r.description || ""
+    }));
+
+    let maxId = offers.concat(requests).reduce((m, p) => Math.max(m, p.id || 0), 0);
+    let changed = false;
+
+    for (const list of [offers, requests]) {
+        for (const item of list) {
+            if (!item.id) { maxId += 1; item.id = maxId; changed = true; }
+        }
+    }
+
+    if (changed) {
+        // write back normalized shapes (use username)
+        saveJson(offersFile, offers.map(o => ({ id: o.id, username: o.username, skill: o.skill, category: o.category, description: o.description })));
+        saveJson(requestsFile, requests.map(r => ({ id: r.id, username: r.username, skill: r.skill, category: r.category, description: r.description })));
+    }
+
+    return { offers, requests };
+}
+
 // Offers API
 app.get("/api/offers", (req, res) => {
-    res.json(loadJson(offersFile));
+    const db = normalizeDataFiles();
+    res.json(db.offers);
 });
 
 app.post("/api/offers", (req, res) => {
@@ -177,14 +227,17 @@ app.post("/api/offers", (req, res) => {
         return res.status(400).json({ error: "name and skill required" });
 
     const offers = loadJson(offersFile);
-    offers.push({ name, skill });
+    const id = getNextId();
+    const newPost = { id, username: name, skill, category: "", description: "" };
+    offers.push(newPost);
     saveJson(offersFile, offers);
 
-    res.status(201).json({ message: "Offer added" });
+    res.status(201).json({ message: "Offer added", post: newPost });
 });
 
 app.get("/api/requests", (req, res) => {
-    res.json(loadJson(requestsFile));
+    const db = normalizeDataFiles();
+    res.json(db.requests);
 });
 
 app.post("/api/requests", (req, res) => {
@@ -194,10 +247,12 @@ app.post("/api/requests", (req, res) => {
         return res.status(400).json({ error: "name and skill required" });
 
     const requests = loadJson(requestsFile);
-    requests.push({ name, skill });
+    const id = getNextId();
+    const newPost = { id, username: name, skill, category: "", description: "" };
+    requests.push(newPost);
     saveJson(requestsFile, requests);
 
-    res.status(201).json({ message: "Request added" });
+    res.status(201).json({ message: "Request added", post: newPost });
 });
 
 // View all posts
