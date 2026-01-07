@@ -140,3 +140,10 @@ vite.config.ts.timestamp-*
 
 # Additional feature (skilllink.json)
 utils/skilllink.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
