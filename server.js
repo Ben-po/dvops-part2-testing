@@ -264,6 +264,8 @@ app.put('/api/posts/:id', SkillPostUtil.updatePost);
 // Delete a post
 app.delete('/api/posts/:id', SkillPostUtil.deletePost);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Merged SkillLink server running at http://localhost:${PORT}`);
 });
+
+module.exports = { app, server };
