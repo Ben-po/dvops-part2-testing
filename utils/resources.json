@@ -1,0 +1,65 @@
+[
+  {
+    "id": "kb-chromium",
+    "name": "Keyboard-chromium",
+    "location": "Room 101",
+    "description": "Wireless keyboard",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "mn-chromium",
+    "name": "Monitor-chromium",
+    "location": "Room 101",
+    "description": "HP Monitor",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "lt-chromium",
+    "name": "Laptop-chromium",
+    "location": "Room 101",
+    "description": "Dell Laptop",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "kb-firefox",
+    "name": "Keyboard-firefox",
+    "location": "Room 101",
+    "description": "Wireless keyboard",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "mn-firefox",
+    "name": "Monitor-firefox",
+    "location": "Room 101",
+    "description": "HP Monitor",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "lt-firefox",
+    "name": "Laptop-firefox",
+    "location": "Room 101",
+    "description": "Dell Laptop",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "kb-webkit",
+    "name": "Keyboard-webkit",
+    "location": "Room 101",
+    "description": "Wireless keyboard",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "mn-webkit",
+    "name": "Monitor-webkit",
+    "location": "Room 101",
+    "description": "HP Monitor",
+    "owner": "admin@example.com"
+  },
+  {
+    "id": "lt-webkit",
+    "name": "Laptop-webkit",
+    "location": "Room 101",
+    "description": "Dell Laptop",
+    "owner": "admin@example.com"
+  }
+]
