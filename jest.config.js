@@ -13,8 +13,8 @@ module.exports = {
   // Here, all JS files in 'utils' folder and 'index.js' are included
   collectCoverageFrom: [
     'utils/BenjaminUtils.js',
-    'public/js/Benjamin.js',
-    'index.js',
+    '!public/js/Benjamin.js',
+    '!index.js',
     '!**/node_modules/**',
     '!**/coverage/**'
   ],
