@@ -1,9 +1,13 @@
-import './playwright-coverage.js'
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = 'http://localhost:3000';
 
 test.describe('Authentication Frontend Tests', () => {
+  // Clear localStorage before each test to prevent cross-test interference
+  test.beforeEach(async ({ page }) => {
+    await page.goto(BASE_URL);
+    await page.evaluate(() => localStorage.clear());
+  });
   test('Register new user', async ({ page, browserName }) => {
     await page.goto(`${BASE_URL}/register.html`);
 
@@ -14,14 +18,12 @@ test.describe('Authentication Frontend Tests', () => {
     await page.fill('#register_username', username);
     await page.fill('#register_password', password);
 
-    // Handle alert dialog
-    page.once('dialog', async dialog => {
-      expect(dialog.message()).toContain('Registered and logged in');
-      await dialog.accept();
-    });
-
-    // Submit the form
+    // Handle alert dialog - set up listener before action
+    const dialogPromise = page.waitForEvent('dialog');
     await page.click('button[type="submit"]');
+    const dialog = await dialogPromise;
+    expect(dialog.message()).toContain('Registered and logged in');
+    await dialog.accept();
 
     // Wait for redirect to FirstSkillSelection.html
     await page.waitForURL(`${BASE_URL}/FirstSkillSelection.html`, { timeout: 5000 });
@@ -39,17 +41,28 @@ test.describe('Authentication Frontend Tests', () => {
     const username = `logintest-${browserName}-${Date.now()}@example.com`;
     const password = 'TestPassword123';
 
-    // Register via API to ensure it's properly saved
-    const registerResponse = await page.request.post(`${BASE_URL}/api/register`, {
-      data: { username, password }
-    });
-    
-    expect(registerResponse.ok()).toBeTruthy();
-    const registerData = await registerResponse.json();
-    expect(registerData.success).toBe(true);
+    // Register via UI first to ensure proper setup (same as Register new user test)
+    await page.goto(`${BASE_URL}/register.html`);
 
-    // Wait to ensure file write completes
-    await page.waitForTimeout(1000);
+    // Fill registration form
+    await page.fill('#register_username', username);
+    await page.fill('#register_password', password);
+
+    // Handle alert dialog
+    const regDialogPromise = page.waitForEvent('dialog');
+    await page.click('button[type="submit"]');
+    const regDialog = await regDialogPromise;
+    expect(regDialog.message()).toContain('Registered and logged in');
+    await regDialog.accept();
+
+    // Wait for redirect to FirstSkillSelection.html
+    await page.waitForURL(`${BASE_URL}/FirstSkillSelection.html`, { timeout: 5000 });
+
+    // Clear auth to test login
+    await page.evaluate(() => {
+      localStorage.removeItem('sl_token');
+      localStorage.removeItem('loggedInUser');
+    });
 
     // Now test the login UI
     await page.goto(`${BASE_URL}/login.html`);
@@ -60,14 +73,12 @@ test.describe('Authentication Frontend Tests', () => {
     await page.fill('#login_username', username);
     await page.fill('#login_password', password);
 
-    // Handle alert dialog - expect success
-    page.once('dialog', async dialog => {
-      expect(dialog.message()).toContain('Logged in');
-      await dialog.accept();
-    });
-
-    // Submit the form
+    // Handle alert dialog - set up listener before action
+    const dialogPromise = page.waitForEvent('dialog');
     await page.click('button[type="submit"]');
+    const dialog = await dialogPromise;
+    expect(dialog.message()).toContain('Logged in');
+    await dialog.accept();
 
     // Wait for redirect to home page
     await page.waitForURL(BASE_URL + '/', { timeout: 10000 });
@@ -90,11 +101,11 @@ test.describe('Authentication Frontend Tests', () => {
     await page.fill('#register_username', username);
     await page.fill('#register_password', password);
     
-    page.once('dialog', async dialog => {
-      await dialog.accept();
-    });
-    
+    const dialogPromise = page.waitForEvent('dialog');
     await page.click('button[type="submit"]');
+    const dialog = await dialogPromise;
+    await dialog.accept();
+    
     await page.waitForURL(`${BASE_URL}/FirstSkillSelection.html`, { timeout: 5000 });
 
     // Now test failed login
@@ -103,14 +114,12 @@ test.describe('Authentication Frontend Tests', () => {
     await page.fill('#login_username', username);
     await page.fill('#login_password', 'WrongPassword');
 
-    // Listen for alert dialogs
-    page.once('dialog', async dialog => {
-      expect(dialog.message()).toContain('Invalid');
-      await dialog.accept();
-    });
-
-    // Submit the form
+    // Listen for alert dialogs - set up before action
+    const failDialogPromise = page.waitForEvent('dialog');
     await page.click('button[type="submit"]');
+    const failDialog = await failDialogPromise;
+    expect(failDialog.message()).toContain('Invalid');
+    await failDialog.accept();
 
     await page.waitForTimeout(500);
     
