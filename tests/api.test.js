@@ -44,6 +44,66 @@ describe('Authentication API', () => {
     expect(res.body.token).toBeDefined();
   });
 
+  it('POST /api/register should fail with missing username', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({ password: 'TestPassword123' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/register should fail with missing password', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({ username: 'testuser@example.com' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/register should fail with empty string username', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({ username: '', password: 'TestPassword123' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/register should fail with empty string password', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({ username: 'testuser@example.com', password: '' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/register should handle null request body', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send(null);
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/register should fail with duplicate username', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send(existingUser);
+
+    expect(res.status).toBe(409);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('already taken');
+  });
+
   it('POST /api/login should authenticate user with correct credentials', async () => {
     const res = await request(app)
       .post('/api/login')
@@ -77,5 +137,55 @@ describe('Authentication API', () => {
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
+  });
+
+  it('POST /api/login should fail with missing username', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({ password: 'SomePassword' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/login should fail with missing password', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({ username: existingUser.username });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/login should fail with empty string username', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({ username: '', password: 'SomePassword' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/login should fail with empty string password', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({ username: existingUser.username, password: '' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
+  });
+
+  it('POST /api/login should handle null request body', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send(null);
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain('required');
   });
 });

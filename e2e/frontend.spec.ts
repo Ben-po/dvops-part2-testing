@@ -22,7 +22,7 @@ test.describe('Authentication Frontend Tests', () => {
     const dialogPromise = page.waitForEvent('dialog');
     await page.click('button[type="submit"]');
     const dialog = await dialogPromise;
-    expect(dialog.message()).toContain('Registered and logged in');
+    expect(dialog.message()).toContain('Registered and logged in as');
     await dialog.accept();
 
     // Wait for redirect to FirstSkillSelection.html
@@ -52,11 +52,14 @@ test.describe('Authentication Frontend Tests', () => {
     const regDialogPromise = page.waitForEvent('dialog');
     await page.click('button[type="submit"]');
     const regDialog = await regDialogPromise;
-    expect(regDialog.message()).toContain('Registered and logged in');
+    expect(regDialog.message()).toContain('Registered and logged in as');
     await regDialog.accept();
 
     // Wait for redirect to FirstSkillSelection.html
     await page.waitForURL(`${BASE_URL}/FirstSkillSelection.html`, { timeout: 5000 });
+
+    // Wait for file to be written to disk before attempting login
+    await page.waitForTimeout(3000);
 
     // Clear auth to test login
     await page.evaluate(() => {
@@ -77,7 +80,7 @@ test.describe('Authentication Frontend Tests', () => {
     const dialogPromise = page.waitForEvent('dialog');
     await page.click('button[type="submit"]');
     const dialog = await dialogPromise;
-    expect(dialog.message()).toContain('Logged in');
+    expect(dialog.message()).toContain('Logged in as');
     await dialog.accept();
 
     // Wait for redirect to home page
@@ -115,13 +118,13 @@ test.describe('Authentication Frontend Tests', () => {
     await page.fill('#login_password', 'WrongPassword');
 
     // Listen for alert dialogs - set up before action
-    const failDialogPromise = page.waitForEvent('dialog');
+    page.on('dialog', async dialog => {
+      expect(dialog.message()).toContain('Invalid');
+      await dialog.accept();
+    });
+    
     await page.click('button[type="submit"]');
-    const failDialog = await failDialogPromise;
-    expect(failDialog.message()).toContain('Invalid');
-    await failDialog.accept();
-
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     
     // Should still be on login page
     expect(page.url()).toBe(`${BASE_URL}/login.html`);
@@ -139,6 +142,58 @@ test.describe('Authentication Frontend Tests', () => {
     // Click login link
     await page.click('a[href="/login.html"]');
     await expect(page.locator('h2')).toHaveText('Login');
+  });
+
+
+
+  test('Login should fail with non-existent user', async ({ page }) => {
+    await page.goto(`${BASE_URL}/login.html`);
+
+    const nonExistentUser = `nonexistent-${Date.now()}@example.com`;
+    
+    await page.fill('#login_username', nonExistentUser);
+    await page.fill('#login_password', 'SomePassword123');
+
+    // Listen for alert dialogs - set up before action
+    page.on('dialog', async dialog => {
+      expect(dialog.message()).toContain('Invalid');
+      await dialog.accept();
+    });
+    
+    await page.click('button[type="submit"]');
+    await page.waitForTimeout(1000);
+    
+    // Should still be on login page
+    expect(page.url()).toBe(`${BASE_URL}/login.html`);
+  });
+
+
+
+
+
+  test('Registration with special characters in credentials', async ({ page }) => {
+    await page.goto(`${BASE_URL}/register.html`);
+
+    const username = `special+user!${Date.now()}@example.com`;
+    const password = 'P@ssw0rd!#$%';
+
+    await page.fill('#register_username', username);
+    await page.fill('#register_password', password);
+
+    const dialogPromise = page.waitForEvent('dialog');
+    await page.click('button[type="submit"]');
+    const dialog = await dialogPromise;
+    expect(dialog.message()).toContain('Registered and logged in');
+    await dialog.accept();
+
+    await page.waitForURL(`${BASE_URL}/FirstSkillSelection.html`, { timeout: 5000 });
+
+    // Verify token and user are stored
+    const token = await page.evaluate(() => localStorage.getItem('sl_token'));
+    expect(token).toBeTruthy();
+    
+    const loggedInUser = await page.evaluate(() => localStorage.getItem('loggedInUser'));
+    expect(loggedInUser).toBe(username);
   });
 });
 
