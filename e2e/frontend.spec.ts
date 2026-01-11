@@ -18,6 +18,8 @@ test.describe('Auth UI (Benjamin.js)', () => {
 
     await page.click('#loginForm button[type="submit"]');
     await page.waitForTimeout(500);
+
+    await expect(page.locator('#loginStatus')).toContainText('Username and password are required');
   });
 
   /* -------------------------
@@ -43,6 +45,8 @@ test.describe('Auth UI (Benjamin.js)', () => {
 
     await page.click('#loginForm button[type="submit"]');
     await page.waitForTimeout(500);
+
+    await expect(page.locator('#loginStatus')).toContainText('Invalid credentials');
   });
 
   /* -------------------------
@@ -68,6 +72,8 @@ test.describe('Auth UI (Benjamin.js)', () => {
     await page.fill('#login_password', 'Password123');
     await page.click('#loginForm button[type="submit"]');
     await page.waitForTimeout(200);
+
+    await expect(page.locator('#loginStatus')).toContainText(`Logged in as ${username}`);
   });
 
   /* -------------------------
@@ -226,6 +232,8 @@ test.describe('Auth UI (Benjamin.js)', () => {
 
     await page.click('#loginForm button[type="submit"]');
     await page.waitForTimeout(500);
+
+    await expect(page.locator('#loginStatus')).toContainText('Logged in as');
   });
 
   /* -------------------------
@@ -276,6 +284,8 @@ test.describe('Auth UI (Benjamin.js)', () => {
 
     await page.click('#loginForm button[type="submit"]');
     await page.waitForTimeout(500);
+
+    await expect(page.locator('#loginStatus')).toContainText('Login failed');
   });
 
   /* -------------------------
