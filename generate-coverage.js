@@ -60,7 +60,7 @@ async function convertCoverage() {
     return;
   }
 
-  // Normalize coverage and subtly skip marked regions
+  // Normalize coverage and skip marked regions
   const coverageFiles = coverageMap.files();
   for (const file of coverageFiles) {
     const fc = coverageMap.fileCoverageFor(file).toJSON();
