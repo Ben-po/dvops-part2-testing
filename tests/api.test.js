@@ -1,38 +1,57 @@
+const fs = require('fs');
+const path = require('path');
 const request = require('supertest');
 const { app, server } = require('../server');
+
+const USERS_FILE = path.join(__dirname, '..', 'utils', 'skilllink.json');
+
+// Ensure a clean users file before tests run
+beforeAll(() => {
+  if (fs.existsSync(USERS_FILE)) {
+    fs.unlinkSync(USERS_FILE);
+  }
+});
 
 // Close server after all tests complete
 afterAll(() => server.close());
 
 describe('Authentication API', () => {
-  let token;
-  const testUser = {
-    username: 'testuser@example.com',
-    password: 'TestPassword123'
+  const existingUser = {
+    username: 'existinguser@example.com',
+    password: 'CorrectPassword123'
   };
 
+  // Seed a known user for login tests (independent from the register test)
+  beforeAll(async () => {
+    await request(app)
+      .post('/api/register')
+      .send(existingUser);
+  });
+
   it('POST /api/register should create a new user', async () => {
+    const newUser = {
+      username: `testuser-${Date.now()}@example.com`,
+      password: 'TestPassword123'
+    };
+
     const res = await request(app)
       .post('/api/register')
-      .send(testUser);
+      .send(newUser);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.user.username).toBe(testUser.username);
+    expect(res.body.user.username).toBe(newUser.username);
     expect(res.body.token).toBeDefined();
-
-    // Store token for login test
-    token = res.body.token;
   });
 
   it('POST /api/login should authenticate user with correct credentials', async () => {
     const res = await request(app)
       .post('/api/login')
-      .send(testUser);
+      .send(existingUser);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.user.username).toBe(testUser.username);
+    expect(res.body.user.username).toBe(existingUser.username);
     expect(res.body.token).toBeDefined();
   });
 
@@ -40,7 +59,7 @@ describe('Authentication API', () => {
     const res = await request(app)
       .post('/api/login')
       .send({
-        username: testUser.username,
+        username: existingUser.username,
         password: 'WrongPassword'
       });
 
