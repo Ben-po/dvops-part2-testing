@@ -8,6 +8,7 @@ test.describe('Authentication Frontend Tests', () => {
     await page.goto(BASE_URL);
     await page.evaluate(() => localStorage.clear());
   });
+  // Register new user successfully
   test('Register new user', async ({ page, browserName }) => {
     await page.goto(`${BASE_URL}/register.html`);
 
@@ -36,6 +37,7 @@ test.describe('Authentication Frontend Tests', () => {
     expect(loggedInUser).toBe(username);
   });
 
+  // Login with existing user
   test('Login with existing user', async ({ page, browserName }) => {
     // Create unique username per browser to avoid conflicts
     const username = `logintest-${browserName}-${Date.now()}@example.com`;
@@ -94,6 +96,7 @@ test.describe('Authentication Frontend Tests', () => {
     expect(loggedInUser).toBe(username);
   });
 
+  // Login fails with incorrect password
   test('Login should fail with incorrect password', async ({ page }) => {
     // First create a user
     await page.goto(`${BASE_URL}/register.html`);
@@ -130,6 +133,7 @@ test.describe('Authentication Frontend Tests', () => {
     expect(page.url()).toBe(`${BASE_URL}/login.html`);
   });
 
+  // Navigation between login and register pages
   test('Navigation between login and register pages', async ({ page }) => {
     // Start at login page
     await page.goto(`${BASE_URL}/login.html`);
@@ -144,8 +148,7 @@ test.describe('Authentication Frontend Tests', () => {
     await expect(page.locator('h2')).toHaveText('Login');
   });
 
-
-
+  // Login fails with non-existent user
   test('Login should fail with non-existent user', async ({ page }) => {
     await page.goto(`${BASE_URL}/login.html`);
 
@@ -167,10 +170,7 @@ test.describe('Authentication Frontend Tests', () => {
     expect(page.url()).toBe(`${BASE_URL}/login.html`);
   });
 
-
-
-
-
+  // Registration with special characters
   test('Registration with special characters in credentials', async ({ page }) => {
     await page.goto(`${BASE_URL}/register.html`);
 
@@ -196,5 +196,4 @@ test.describe('Authentication Frontend Tests', () => {
     expect(loggedInUser).toBe(username);
   });
 });
-
 
