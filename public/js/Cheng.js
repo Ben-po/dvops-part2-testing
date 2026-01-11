@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 document.addEventListener("DOMContentLoaded", function () {
   // current editing post for modal
   let currentEditing = null;

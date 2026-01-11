@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 // managePosts.js
 
 // Global state

@@ -20,7 +20,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Run tests parallel. */
-  workers: 16,
+  workers: 8,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -74,7 +74,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
    webServer: {
      command: 'npm run start',
-     url: 'http://localhost:3000',
+     url: 'http://localhost:5050',
      reuseExistingServer: !process.env.CI,
    },
 });
