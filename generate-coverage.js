@@ -4,10 +4,77 @@ const v8toIstanbul = require('v8-to-istanbul');
 const reports = require('istanbul-reports');
 const { createContext } = require('istanbul-lib-report');
 const { createCoverageMap } = require('istanbul-lib-coverage');
+const https = require('https');
 
 const coverageDir = path.join(process.cwd(), 'coverage/temp'); // Playwright v8 coverage
 const istanbulCoverageDir = path.join(process.cwd(), 'coverage/frontend'); // Final report output
 const TARGET_URL_SUFFIX = '/js/Benjamin.js';
+const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1460000406850506752/yUykevcvMmpQzqNFHTIH8HatoYNo7FQsyg-_uLk41WgY3PBpUES92za8MWxauD7My3T7';
+
+/**
+ * Send coverage report to Discord webhook
+ */
+async function sendToDiscord(summary, belowThreshold) {
+  const color = belowThreshold.length > 0 ? 15158332 : 3066993; // Red if failed, green if passed
+  const title = belowThreshold.length > 0 ? 'Frontend Coverage Report - FAILED' : 'Frontend Coverage Report - PASSED';
+  
+  const fields = [
+    { name: 'Lines', value: `${summary.lines.pct}%`, inline: true },
+    { name: 'Statements', value: `${summary.statements.pct}%`, inline: true },
+    { name: 'Functions', value: `${summary.functions.pct}%`, inline: true },
+    { name: 'Branches', value: `${summary.branches.pct}%`, inline: true }
+  ];
+
+  if (belowThreshold.length > 0) {
+    fields.push({
+      name: '⚠️ Below Threshold',
+      value: belowThreshold.join('\n'),
+      inline: false
+    });
+  }
+
+  const payload = JSON.stringify({
+    embeds: [{
+      title,
+      color,
+      fields,
+      timestamp: new Date().toISOString(),
+      footer: { text: 'Frontend Coverage Report' }
+    }]
+  });
+
+  return new Promise((resolve, reject) => {
+    const url = new URL(DISCORD_WEBHOOK_URL);
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        console.log('✓ Coverage report sent to Discord');
+        resolve();
+      } else {
+        console.error(`Failed to send to Discord: ${res.statusCode}`);
+        reject(new Error(`Discord webhook failed with status ${res.statusCode}`));
+      }
+    });
+
+    req.on('error', (error) => {
+      console.error('Error sending to Discord:', error.message);
+      reject(error);
+    });
+
+    req.write(payload);
+    req.end();
+  });
+} //end of discord webhook function
+
 
 async function convertCoverage() {
   // Exit if no coverage data exists
@@ -117,6 +184,13 @@ async function convertCoverage() {
   }
 
   console.log(`Coverage report generated in ${istanbulCoverageDir}`);
+
+  // Send coverage report to Discord
+  try {
+    await sendToDiscord(summary, belowThreshold);
+  } catch (error) {
+    console.warn('Failed to send Discord notification:', error.message);
+  }
 }
 
 convertCoverage();

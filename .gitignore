@@ -147,3 +147,7 @@ utils/skilllink.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Allure
+/allure-results/
+/allure-report/

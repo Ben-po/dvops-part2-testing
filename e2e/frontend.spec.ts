@@ -60,8 +60,8 @@ test.describe('Authentication Frontend Tests', () => {
     // Wait for redirect to FirstSkillSelection.html
     await page.waitForURL(`${BASE_URL}/FirstSkillSelection.html`, { timeout: 5000 });
 
-    // Wait for file to be written to disk before attempting login
-    await page.waitForTimeout(3000);
+    // Wait for backend to persist user data before attempting login
+    await page.waitForTimeout(8000);
 
     // Clear auth to test login
     await page.evaluate(() => {
@@ -74,6 +74,9 @@ test.describe('Authentication Frontend Tests', () => {
     
     // Wait for page to fully load
     await page.waitForLoadState('networkidle');
+    
+    // Add small delay before filling form to ensure page is ready
+    await page.waitForTimeout(500);
     
     await page.fill('#login_username', username);
     await page.fill('#login_password', password);
@@ -113,6 +116,9 @@ test.describe('Authentication Frontend Tests', () => {
     await dialog.accept();
     
     await page.waitForURL(`${BASE_URL}/FirstSkillSelection.html`, { timeout: 5000 });
+
+    // Wait for backend to persist user data
+    await page.waitForTimeout(8000);
 
     // Now test failed login
     await page.goto(`${BASE_URL}/login.html`);
