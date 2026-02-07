@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const SkillPostUtil = require('./utils/SkillPostUtil');
 
 const app = express();
-const PORT = 3000;
+const PORT = 5050;
 
 app.use(express.json());  // Fixed: moved to top
 app.use(express.static(path.join(__dirname, "public"))); // serve frontend
