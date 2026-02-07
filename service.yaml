@@ -1,0 +1,20 @@
+# Service to expose the DevOps project app
+apiVersion: v1
+kind: Service
+metadata:
+  # Name of the service
+  name: dvops-project-service
+spec:
+  # Expose via NodePort
+  type: NodePort
+  selector:
+    # Match pods with this label
+    app: dvops-project
+  ports:
+    - protocol: TCP
+      # Service port
+      port: 5050
+      # Container port
+      targetPort: 5050
+      # NodePort exposed on the cluster nodes
+      nodePort: 30080

@@ -1,0 +1,27 @@
+# Deployment for the DevOps project app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Name of the deployment
+  name: dvops-project-deploy
+spec:
+  # Number of pod replicas
+  replicas: 2
+  selector:
+    matchLabels:
+      # Labels to match pods
+      app: dvops-project
+  template:
+    metadata:
+      labels:
+        # Pod labels
+        app: dvops-project
+    spec:
+      containers:
+        - name: dvops-project
+          # Docker image to run
+          image: dvops-project3-ci-cd:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            # Container port exposed by the app
+            - containerPort: 5050
