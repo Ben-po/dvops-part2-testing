@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:5050';
 
 test.describe('Authentication Frontend Tests', () => {
   // Clear localStorage before each test to prevent cross-test interference
