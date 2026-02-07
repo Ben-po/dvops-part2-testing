@@ -20,7 +20,7 @@ spec:
       containers:
         - name: dvops-project
           # Docker image to run
-          image: dvops-project3-ci-cd:latest
+          image: dvops-project3-ci-cd:{{BUILD_NUMBER}}
           imagePullPolicy: IfNotPresent
           ports:
             # Container port exposed by the app
